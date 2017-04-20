@@ -2,7 +2,6 @@ package tech.alvarez.mipuntoenelmundoreal;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,11 +11,9 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private TextView latitudTextView;
     private TextView longitudTextView;
@@ -47,10 +44,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             // TODO: AQUÍ SE COLOCA EL CÓDIGO PARA OBTENER ACTUALIZACIONES DE LOCALIZACIÓN
 
-            LocationRequest locationRequest = new LocationRequest();
-            locationRequest.setInterval(1000);
-            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+
+
+
+            
+
 
         } else {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -98,11 +96,5 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         if (googleApiClient.isConnected()) {
             googleApiClient.disconnect();
         }
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        latitudTextView.setText(String.valueOf(location.getLatitude()));
-        longitudTextView.setText(String.valueOf(location.getLongitude()));
     }
 }
