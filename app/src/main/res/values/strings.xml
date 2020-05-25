@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Mi punto en el mundo real</string>
+    <string name="app_name">Mi punto</string>
     <string name="latitud">Latitud</string>
     <string name="longitud">Longitud</string>
 </resources>

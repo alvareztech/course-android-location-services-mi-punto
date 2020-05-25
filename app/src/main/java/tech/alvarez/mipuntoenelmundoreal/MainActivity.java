@@ -2,24 +2,25 @@ package tech.alvarez.mipuntoenelmundoreal;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity {
 
     private TextView latitudTextView;
     private TextView longitudTextView;
 
-    private GoogleApiClient googleApiClient;
+    private FusedLocationProviderClient fusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,33 +30,30 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         latitudTextView = findViewById(R.id.latitudTextView);
         longitudTextView = findViewById(R.id.longitudTextView);
 
-        googleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        checkLocationPermission();
     }
 
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        System.out.println("onConnected");
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+    private void getLastLocation() {
+        fusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                if (location != null) {
+                    Log.i("MIAPP", "Localización: " + location.getLatitude() + ", " + location.getLatitude());
+                    latitudTextView.setText(String.valueOf(location.getLatitude()));
+                    longitudTextView.setText(String.valueOf(location.getLongitude()));
+                }
+            }
+        });
+    }
 
-            // Tenemos permiso, podemos realizar la operación
-
-            // TODO: AQUÍ SE COLOCA EL CÓDIGO PARA OBTENER ACTUALIZACIONES DE LOCALIZACIÓN
-
-
-
-
-            
-
-
+    private void checkLocationPermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) { // Tenemos permiso, podemos realizar la operación
+            getLastLocation();
         } else {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-                // Ya pedimos permiso anteriormente al usuario
-
-                // Podríamos mostrar un mensaje al usuario para que lo active manualmente
+                // Ya pedimos permiso anteriormente al usuario. Podríamos mostrar un mensaje al usuario para que lo active manualmente.
             } else {
                 // Nunca pedimos permiso, ahora lo solicitamos
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 777);
@@ -66,36 +64,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == 777) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // El usuario dio permiso
-            } else {
-                // El usuario no dio permiso
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) { // El usuario dio permiso
+                getLastLocation();
+            } else {  // El usuario no dio permiso
+
             }
-        }
-    }
-
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        googleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (googleApiClient.isConnected()) {
-            googleApiClient.disconnect();
         }
     }
 }
